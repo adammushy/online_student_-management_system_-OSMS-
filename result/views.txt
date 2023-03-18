@@ -1,0 +1,275 @@
+for printinng the report list
+@login_required
+@lecturer_required
+def generate_pdf(request, *args, **kwargs):
+    template = get_template('students_results.html')
+    # students = Student.objects.all()
+    student = Student.objects.get(id_number=200230226256)
+    # student= User.objects.get(is_student=True)
+    current_semester = Semester.objects.get(is_current_semester=True)
+    # current_session = Session.objects.get(is_current_session = True)
+    # courses = TakenCourse.objects.filter(student__user__pk=request.user.id)
+    courses = TakenCourse.objects.filter(student=student)
+    coursetotal = TakenCourse.objects.filter(student=student).count()
+    result = Result.objects.filter(student__user__pk=request.user.id)
+    # result = Result.objects.filter(student__user__pk=request.user.id, semester=current_semester)
+    
+    # sem_result = 
+    user_type = "Student"
+    context = {
+        "student": student, 
+        "courses": courses, 
+        "result":result, 
+        "user_type": user_type,
+        }
+    return render(request, 'students_results.html', context)
+    
+    # students = User.objects.filter(is_student=True)
+    
+    print(context)
+     # Get the list of students
+    html = template.render(context)
+    print(html)
+    print(coursetotal)
+    print("the current semester", current_semester)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="students_results.pdf"'
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+    
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), buffer)
+    if not pdf.err:
+        response.write(buffer.getvalue())
+        buffer.close()    
+    return response
+
+
+******************BY MICHAEL************** 
+
+@login_required
+@lecturer_required
+def generate_pdf(request, *args, **kwargs):
+    template = get_template('students_results.html')
+    student=Student.objects.values('id_number').filter(user__is_student=True)
+    sl = [entry for entry in student]
+    mystudentlist = []
+    for i in sl:
+        student = Student.objects.get(id_number=i['id_number'])
+        # student= User.objects.get(is_student=True)
+        current_semester = Semester.objects.get(is_current_semester=True)
+        # current_session = Session.objects.get(is_current_session = True)
+        # courses = TakenCourse.objects.filter(student__user__pk=request.user.id)
+        courses = TakenCourse.objects.filter(student=student)
+        coursetotal = TakenCourse.objects.filter(student=student).count()
+        result = Result.objects.filter(student__user__pk=request.user.id)
+        # result = Result.objects.filter(student__user__pk=request.user.id, semester=current_semester)
+        
+        # sem_result = 
+        user_type = "Student"
+        context1 = {
+            "student": student, 
+            "courses": courses, 
+            "result":result, 
+            "user_type": user_type,
+            }
+        mystudentlist.append(context1)
+     print(mystudentlist)
+     # Get the list of students
+    html = template.render({'data': mystudentlist})
+    print(html)
+    # print(coursetotal)
+    print("the current semester", current_semester)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="students_results.pdf"'
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+    
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), buffer)
+    if not pdf.err:
+        response.write(buffer.getvalue())
+        buffer.close()    
+    return response
+
+
+************************#the html codes**************
+{% load static %}
+
+
+<table class="table table-bordered table-striped" style="  border: 1px solid black;border-collapse: collapse; width: 60%;">
+    
+    <tbody >
+      <tr style="border: 1px solid black; justify-content: space-between;">
+        <th style="width: 20%;">Student_Id</th>
+        <!-- <th>fname</th>
+        <th>lname</th> -->
+        <th>level</th>
+          {% for course in data %}
+          {% if course.semester == "First" %}
+          <th colspan="2">{{course.courseCode}}
+  <!--          
+            <th>CA</th>
+            <th>FE</th> -->
+          </th>
+          {% endif %}
+          {% endfor%}
+      </tr>
+      <tr style="  border-bottom: 1px solid black; "> 
+        <th> </th>
+        /th>
+        
+        <th> <
+        {% for course in data %}
+        {% if course.course.semester == "First" %}
+
+         <th>CA</th>
+         <th>FE</th>
+          {% endif %}
+         {% endfor %}
+ 
+       
+      </tr>
+      
+<!--       
+          <tr style=" margin-top: 2px; align-items: center; justify-content: center;" >
+            {% for student in students %}
+            <td style="overflow:auto ;align-items: center;">{{ student.id_number }}</td>
+            <!-- <td>{{ student.user.first_name }}</td>
+            <td>{{ student.user.last_name }}</td> -->
+            <td style="justify-content: center;">{{ student.level }}</td>
+            {% endfor %}
+            
+            {% for course in data %}
+            {% if course.course.semester == "First" %}
+
+
+            <td style="justify-content: center; align-items: center;align-content: center;">{{ course.ca }}</td>
+             <td style="justify-content: center; align-items: center;align-content: center;">{{ course.exam }}</td>
+            {% endif %}
+             
+             {% endfor %}
+
+
+          </tr> -->
+      
+     
+    </tbody>
+</table>
+{% for student in student_list  %}
+                  {% endfor %}
+
+
+
+template = get_template('my_template.html')
+    context = {'my_data': [1, 2, 3, 4, 5]}
+    html = template.render(context)
+    
+    # Create a BytesIO buffer and a PDF canvas
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=landscape(A4))
+    
+    # Create a text object, set font and size
+    text = pdf.beginText(10, 10)
+    text.setFont('Helvetica', 12)
+    
+    # Split the HTML content into lines
+    lines = html.splitlines()
+    
+    # Loop through the lines and add them to the text object
+    for line in lines:
+        text.textLine(line.strip())
+    
+    # Add the text object to the PDF canvas and close the canvas
+    pdf.drawText(text)
+    pdf.showPage()
+    pdf.save()
+    
+    # Return the response with the PDF file
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=my_pdf.pdf'
+    return response
+
+
+****FAILURE MKEKA*****************************
+
+  <h1></h1>
+    <!-- display the student's course results -->
+    <table>
+        <thead>
+            <tr  style="border: 1px solid black;"">
+              <th style="width: 20%;">Student_Id</th>
+              <th>level</th>
+
+                <!-- <th>CA</th>
+                <th>FE</th> -->
+{% for student in student_list %}
+  
+                {% for course in student.courses %}
+                  {% if course.course.semester == "First" %}
+                
+                    <th colspan="2"> {{ course.course.courseCode }}
+                     
+                    </th>
+                 {% endif %}
+                
+               {% endfor %}
+               {% endfor %}
+
+               <th>GPA</th>
+
+            </tr>
+{% for student in student_list %}
+
+            <tr  style="border: 1px solid black;">
+                    <th> </th>
+                    <th> </th>
+
+                {% for course in student.courses %}
+                  {% if course.course.semester == "First" %}
+                  
+                      <th>CA</th>
+                      <th>FE</th>
+
+                  {% endif %}
+
+                {% endfor %}
+
+
+            </tr>
+
+{% endfor %}
+
+        </thead>
+{% for student in student_list %}
+
+        <tbody>
+            
+                <tr style="border: 1px solid black;">
+                    <td>{{ student.student.id_number }}</td>
+                    <td>{{ student.student.level }}</td>
+
+                    {% for course in student.courses %}
+                      {% if course.course.semester == "First" %}
+                        <td style="justify-content: center; align-items: center;align-content: center;">{{ course.ca }}</td>
+                        <td style="justify-content: center; align-items: center;align-content: center;">{{ course.exam }}</td>
+
+                      
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for result in student.result %}
+                    {% if result.semester == "First" %}
+                                   
+                     <td><label>First Semester GPA:</label> {{ result.result.gpa }}</td>
+
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+           
+
+        </tbody>
+{% endfor %}
+
+    </table>

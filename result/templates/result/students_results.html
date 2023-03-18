@@ -1,0 +1,83 @@
+
+  <h1></h1>
+    <!-- display the student's course results -->
+
+    <table>
+        <thead>
+            <tr  style="border: 1px solid black;"">
+              <th style="width: 20%;">Student_Id</th>
+              <th>level</th>
+
+                <!-- <th>CA</th>
+                <th>FE</th> -->
+
+  
+                {% for course in student.courses %}
+                  {% if course.course.semester == "First" %}
+                
+                    <th colspan="2"> {{ course.course.courseCode }}
+                     
+                    </th>
+                 {% endif %}
+                
+               {% endfor %}
+               
+
+             
+
+            </tr>
+
+
+            <tr  style="border: 1px solid black;">
+                    <th> </th>
+                    <th> </th>
+
+                {% for course in student.courses %}
+                  {% if course.course.semester == "First" %}
+                  
+                      <th>CA</th>
+                      <th>FE</th>
+                      <th>grade</th>
+
+
+
+                  {% endif %}
+
+                {% endfor %}
+
+
+            </tr>
+
+
+        </thead>
+
+
+        
+        <tbody>
+        {% for student in student_list %} 
+            
+                <tr style="border: 1px solid black;">
+                    <td>{{ student.student.id_number }}</td>
+                    <td>{{ student.student.level }}</td>
+                    
+
+
+
+                    {% for course in student.courses %}
+                      {% if course.course.semester == "First" %}
+                        <td style="justify-content: center; align-items: center;align-content: center;">{{ course.ca }}</td>
+                        <td style="justify-content: center; align-items: center;align-content: center;">{{ course.exam }}</td>
+                        <td style="justify-content: center; align-items: center;align-content: center;">{{ course.grade }}</td>
+
+
+                      
+                        {% endif %}
+                    {% endfor %}
+
+                  
+           
+
+        </tbody>
+        {% endfor %}
+
+    </table>
